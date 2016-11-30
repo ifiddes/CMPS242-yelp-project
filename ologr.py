@@ -59,6 +59,7 @@ class OrdinalLogisticRegression(object):
                 for k in range(label, l):
                     second += h(row.dot(w) - theta[k])
                 total += first + second
+            final = total + (lamb / 2.) * np.asscalar(w.dot(w))
             return total + (lamb / 2.) * np.asscalar(w.dot(w))
 
         def grad(x0, X, y, lamb=1):
@@ -89,8 +90,7 @@ class OrdinalLogisticRegression(object):
                 b = np.multiply(s[k], a)
                 c = np.multiply(s[k], g(b))
                 theta_grad[:, k] = np.asscalar(ones.T.dot(c))
-
-            return np.hstack((w_grad, theta_grad))
+            return np.hstack((w_grad, theta_grad)).flatten()
 
         x0 = np.random.randn(X.shape[1] + classes.size - 1) / X.shape[1]
         # Initialize weights at zero
@@ -98,8 +98,28 @@ class OrdinalLogisticRegression(object):
         # Sort and scale initial threshold values by the number of classes
         x0[X.shape[1]:] = np.sort(classes.size * np.random.rand(classes.size - 1))
 
+        print optimize.check_grad(loss, grad, x0, X, y)
+        out = optimize.minimize(loss, x0, args=(X, y), jac=grad, method='BFGS')
 
+        w, theta = np.split(out.x, [X.shape[1]])
+        return w, theta
+
+    def predict(self, w, theta, X):
+        """
+        """
+        unique_theta = np.empty(len(theta) + 2)
+        unique_theta[1:-1] = np.sort(np.unique(theta))
+        unique_theta[0] = -np.inf
+        unique_theta[-1] = np.inf  # p(y <= max_level) = 1
+        out = X.dot(w)
+        print out
+        print np.asscalar(out) < unique_theta
+        return np.argmax(out < unique_theta, axis=0)
 
 if __name__ == '__main__':
     c = OrdinalLogisticRegression()
-    c.train(np.array([[0, 0, 0, 1], [0, 1, 0, 0], [1, 0, 0, 0]]), np.array([1, 2, 3]))
+    w, theta = c.train(np.array([[0, 0, 0, 1], [0, 1, 0, 0], [1, 0, 0, 0]]), np.array([1, 2, 3]))
+    print w
+    print theta
+    X = np.array([[0, 0, 0, 1], [0, 1, 0, 0], [1, 0, 0, 0]])
+    print c.predict(w, theta, X[0])
