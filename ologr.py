@@ -92,7 +92,7 @@ class OrdinalLogisticRegressionAT(object):
         # Sort and scale initial threshold values by the number of classes
         x0[X.shape[1]:] = np.sort(classes.size * np.random.rand(classes.size - 1))
 
-        print optimize.check_grad(loss, grad, x0, X, y)
+        # print optimize.check_grad(loss, grad, x0, X, y)
         out = optimize.minimize(loss, x0, args=(X, y), jac=grad, method='BFGS')
 
         w, theta = np.split(out.x, [X.shape[1]])
@@ -114,7 +114,7 @@ class OrdinalLogisticRegressionAT(object):
         return np.argmax(out < unique_theta, axis=0) - 1
 
 if __name__ == '__main__':
-    c = OrdinalLogisticRegression(lamb=2)
+    c = OrdinalLogisticRegressionAT(lamb=2)
     w, theta = c.train(np.array([[0, 1, 1], [0, 2, 2], [0, 3, 3]]), np.array([1, 2, 3]))
     X = np.array([[0, 1, 1], [0, 2, 2], [0, 3, 3]])
     y = np.array([1, 2, 3])
