@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import expit
-from scipy import optimize, sparse
+from scipy import optimize
 
 np.random.seed(6)
 
@@ -15,7 +15,7 @@ def g(z):
 class OrdinalLogisticRegressionAT(object):
     def __init__(self, lamb=1):
         """
-        Ordinal logistic regression for CMPS242
+        All-Threshold ordinal logistic regression for CMPS242
         """
         self.lamb = lamb
 
@@ -57,6 +57,12 @@ class OrdinalLogisticRegressionAT(object):
             return total + (self.lamb / 2.) * np.asscalar(w.dot(w))
 
         def grad(x0, X, y):
+            """
+            :param x0: initial parameters
+            :param X: data matrix
+            :param y: label vector
+            :return: gradient array
+            """
             l = max(y)
             w, theta = np.split(x0, [X.shape[1]])
             w.shape = (X.shape[1], 1)
@@ -117,11 +123,16 @@ class OrdinalLogisticRegressionAT(object):
 class OrdinalLogisticRegressionIT(object):
     def __init__(self, lamb=1):
         """
-        Ordinal logistic regression for CMPS242
+        Intermediate threshold ordinal logistic regression for CMPS242
         """
         self.lamb = lamb
 
     def train(self, X, y):
+        """
+        :param X: data matrix
+        :param y: label vector
+        :return: weight vector, threshold vector
+        """
         X = np.asarray(X)
         y = np.asarray(y)
 
@@ -156,6 +167,12 @@ class OrdinalLogisticRegressionIT(object):
             return total + (self.lamb / 2.) * np.asscalar(w.dot(w))
 
         def grad(x0, X, y):
+            """
+            :param x0: initial parameters
+            :param X: data matrix
+            :param y: label vector
+            :return: gradient array
+            """
             l = max(y)
             w, theta = np.split(x0, [X.shape[1]])
             w.shape = (X.shape[1], 1)
@@ -170,7 +187,6 @@ class OrdinalLogisticRegressionIT(object):
 
             theta_vec = np.array(theta_vec).reshape((X.shape[0], 1))
             theta_minus = np.array(theta_minus).reshape((X.shape[0], 1))
-
 
             a = g(X.dot(w) - theta_vec)
             b = g(theta_minus - X.dot(w))
@@ -222,17 +238,21 @@ class OrdinalLogisticRegressionIT(object):
         unique_theta[-1] = np.inf  # p(y <= max_level) = 1
         unique_theta[1: -1] = np.sort(np.unique(theta))
         out = x.dot(w)
-        # print out
+        # print 'out: ', out
         # print unique_theta
         # print out < unique_theta
         # print np.argmax(out < unique_theta)
         return np.argmax(out < unique_theta, axis=0) - 1
 
 if __name__ == '__main__':
+    """
+    Unit test
+    """
     c = OrdinalLogisticRegressionIT(lamb=2)
-    w, theta = c.train(np.array([[0,0,0,1], [0,1,0,0], [1,0,0,0]]), np.array([1, 2, 3]))
-    X = np.array([[0,0,0,1],[0,1,0,0],[1,0,0,0]])
+    w, theta = c.train(np.array([[0, 0, 0, 1], [0, 1, 0, 0], [1, 0, 0, 0]]), np.array([1, 2, 3]))
+    X = np.array([[0, 0, 0, 1], [0, 1, 0, 0], [1, 0, 0, 0]])
     y = np.array([1, 2, 3])
-    for row, label in zip(X, y):
-        assert label == y[c.predict(w, theta, row)], 'Model broke...'
+    for row, truth in zip(X, y):
+        label = y[c.predict(w, theta, row)]
+        assert label == truth, 'Model broke...'
 
