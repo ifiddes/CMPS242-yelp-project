@@ -1,0 +1,22 @@
+#To run the naive bayes implementation 
+
+# Run in the top level directory
+# This takes about 6 hours to run as it runs on the full review dataset
+
+./naive_bayes_baseline.py
+
+# Data preproceesing for word2vec
+# To generate training and test data
+
+./prepare_ip_text.py <training_text_fname> <training_labels_fname> <test_tax_fname> <test_labels_fname> <number_training> <number_test>
+
+# To produce the word vector embeddings
+# The input file is usually one of the training files generated in the previous step 
+./word2vec_basic.py <ip_file> <op_file>
+
+# To vectorize the review texts
+./vectorize_reviews_summation.py <ip_fname> <word_vectors_fname> <op_filename> <embeddings_size>
+
+# to run mluti-class logistic regression
+./multiclass_logistic_regression.py <training_file> <est_file> <training_samples_per_category> <test_samples_per_category>
+

@@ -1,0 +1,11 @@
+Kamala:
+Implemented Naive bayes baseline and generated results for the same. Generated wordvector embeddings by modifying Google's word2vec tutorial implementation.Also implemented multi-class logistic regression from scratch.  
+
+Ian:
+Generated visualisations of results for naive bayes. Ran ordinal regression for different word vector embeddings. Also generated word vector embeddings based on a different implementation. 
+
+Jacob:
+Implemented ordinal regression from scratch
+
+Brett:
+Wrote down the mathematical formulation for our approach in a previous report
